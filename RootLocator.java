@@ -7,8 +7,6 @@
  *              and Modified Secant.
  */
 
-import java.util.Random;
-
 /**
  *
  * @author Michael Trinh
@@ -53,8 +51,8 @@ public class RootLocator {
     
     public void doBisection(int function, double leftInterval, 
             double rightInterval, double desiredError) {
-        double currentPoint = (leftInterval + rightInterval) / 2;
-        double previousPoint, funCurrent, funLeft, approximateError = 1;
+        double funCurrent, funLeft, previousPoint;
+        double currentPoint = 1, approximateError = 1;
         for(int i = 0; !(approximateError < desiredError); i++) {
             previousPoint = currentPoint;
             currentPoint = (leftInterval + rightInterval) / 2;
@@ -118,6 +116,35 @@ public class RootLocator {
             System.out.println("Root is an inflection point.");
     }
     
+    public void doFalsePosition(int function, double leftInterval, 
+            double rightInterval, double desiredError) {
+        double funCurrent, funLeft, funRight, previousPoint;
+        double currentPoint = 1, approximateError = 1;
+        for(int i = 0; !(approximateError < desiredError); i++) {
+            funLeft = getFunctionOfX(function, leftInterval);
+            funRight = getFunctionOfX(function, rightInterval);
+            previousPoint = currentPoint;
+            // c = b - ((f(b)*(b-a)) / (f(b) - f(a)))
+            currentPoint = rightInterval - ((funRight * (rightInterval - leftInterval)) / 
+                    (funRight - funLeft)); 
+            if (i == 100) {
+                System.out.println("Root Not Found.");
+                return;
+            }
+            // Ea = (current - previous) / current
+            else if (i != 0)
+                approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
+            funCurrent = getFunctionOfX(function, currentPoint);
+            funLeft = getFunctionOfX(function, leftInterval);
+            if (sameSign(funCurrent, funLeft))
+                leftInterval = currentPoint;
+            else
+                rightInterval = currentPoint;
+        }
+        if(!isRoot(function, currentPoint)) 
+            System.out.println("Root is an inflection point.");
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -130,7 +157,7 @@ public class RootLocator {
         System.out.println("\nBisection:");
         rootLocator.doBisection(1, 0, 4, .01);
         rootLocator.doBisection(2, 120, 130, .01);
-        // Newton Raphson
+        // Newton-Raphson
         System.out.println("\nNewton-Raphson:");
         rootLocator.doNewtonRaphson(1, 4, .01);
         rootLocator.doNewtonRaphson(2, 125, .01);
@@ -138,6 +165,12 @@ public class RootLocator {
         System.out.println("\nSecant:");
         rootLocator.doSecant(1, 3, 4, .01);
         rootLocator.doSecant(2, 120, 130, .01);
+        // False-Position
+        System.out.println("\nFalse-Position:");
+        rootLocator.doFalsePosition(1, 2, 4, .01);
+        rootLocator.doFalsePosition(2, 120, 130, .01);
+        // Modified Secant
+        System.out.println("\nModified Secant:");
     }
     
 }
