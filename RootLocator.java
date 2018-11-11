@@ -41,65 +41,86 @@ public class RootLocator {
         }
     }
     
-    public void doBisectionMethod(int function, double leftInterval, 
+    public void doBisection(int function, double leftInterval, 
             double rightInterval, double desiredError) {
-        double currentRoot = (leftInterval + rightInterval) / 2;
-        double previousRoot, funRoot, funLeft, approximateError = 1;
-        for(int i = 0; desiredError < approximateError; i++) {
-            previousRoot = currentRoot;
-            currentRoot = (leftInterval + rightInterval) / 2;
+        double currentPoint = (leftInterval + rightInterval) / 2;
+        double previousPoint, funCurrent, funLeft, approximateError = 1;
+        for(int i = 0; !(approximateError < desiredError); i++) {
+            previousPoint = currentPoint;
+            currentPoint = (leftInterval + rightInterval) / 2;
             if (i == 100) {
                 System.out.println("Root Not Found.");
                 return;
             }
             // Ea = (current - previous) / current
-            else if (i != 0) {
-                approximateError = Math.abs((currentRoot-previousRoot) / 
-                    currentRoot);
-            }
-            funRoot = getFunctionOfX(function, currentRoot);
+            else if (i != 0)
+                approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
+            funCurrent = getFunctionOfX(function, currentPoint);
             funLeft = getFunctionOfX(function, leftInterval);
-            if (sameSign(funRoot, funLeft))
-                leftInterval = currentRoot;
+            if (sameSign(funCurrent, funLeft))
+                leftInterval = currentPoint;
             else
-                rightInterval = currentRoot;
+                rightInterval = currentPoint;
         }   
         // clever check if root converges to zero
-        funRoot = getFunctionOfX(function, currentRoot);
-        if (funRoot > -1 && funRoot < 1) {
-            System.out.println("Root found at x = " + currentRoot);
+        funCurrent = getFunctionOfX(function, currentPoint);
+        if (funCurrent > -1 && funCurrent < 1) {
+            System.out.println("Root found at x = " + currentPoint);
             return;
         }
         System.out.println("Root is an inflection point.");
     }
     
-    public void doNewtonRaphson(int function, double initialPoint, double desiredError) {
-        double funRoot, DeriveRoot;
-        double approximateError = 1;
-        double currentRoot = initialPoint;
-        double previousRoot;
-        for(int i = 0; desiredError < approximateError; i++) {
-            previousRoot = currentRoot;
-            funRoot = getFunctionOfX(function, currentRoot);
-            DeriveRoot = getDerivativeFunctionOfX(function, currentRoot);
-            currentRoot = previousRoot - (funRoot / DeriveRoot);
+    public void doNewtonRaphson(int function, double currentPoint, double desiredError) {
+        double previousPoint, funCurrent, derivePoint, approximateError = 1;
+        for(int i = 0; !(approximateError < desiredError); i++) {
+            previousPoint = currentPoint;
+            funCurrent = getFunctionOfX(function, currentPoint);
+            derivePoint = getDerivativeFunctionOfX(function, currentPoint);
+            currentPoint = previousPoint - (funCurrent / derivePoint);
             if (i == 100) {
                 System.out.println("Root Not Found.");
                 return;
             }
             // Ea = (current - previous) / current
-            if (i != 0) {
-                approximateError = Math.abs((currentRoot-previousRoot) / 
-                    currentRoot);
-            }
+            else if (i != 0)
+                approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
         }
         // clever check if root converges to zero
-        funRoot = getFunctionOfX(function, currentRoot);
-        if (funRoot > -1 && funRoot < 1) {
-            System.out.println("Root found at x = " + currentRoot);
+        funCurrent = getFunctionOfX(function, currentPoint);
+        if (funCurrent > -1 && funCurrent < 1) {
+            System.out.println("Root found at x = " + currentPoint);
             return;
         }
-        System.out.println("Inflection point found at x = " + currentRoot);
+        System.out.println("Inflection point found at x = " + currentPoint);
+    }
+    
+    public void doSecant(int function, double previousPoint, double currentPoint, 
+            double desiredError) {
+        double nextPoint, funCurrent, funPrevious, approximateError = 1;
+        for(int i = 0; !(approximateError < desiredError); i++) {
+            funCurrent = getFunctionOfX(function, currentPoint);
+            funPrevious = getFunctionOfX(function, previousPoint);
+            // xi+1 = xi - (f(xi) * (xi-xi-1)) / (f(xi) - f(xi-1))
+            nextPoint = currentPoint - ((funCurrent * (currentPoint - 
+                    previousPoint)) / (funCurrent - funPrevious));
+            if (i == 100) {
+                System.out.println("Root Not Found.");
+                return;
+            }
+            // Ea = (current - previous) / current
+            else if (i != 0)
+                approximateError = Math.abs((nextPoint - currentPoint) / nextPoint);
+            previousPoint = currentPoint;
+            currentPoint = nextPoint;
+        }
+        // clever check if root converges to zero
+        funCurrent = getFunctionOfX(function, currentPoint);
+        if (funCurrent > -1 && funCurrent < 1) {
+            System.out.println("Root found at x = " + currentPoint);
+            return;
+        }
+        System.out.println("Inflection point found at x = " + currentPoint);
     }
     
     /**
@@ -107,22 +128,21 @@ public class RootLocator {
      */
     public static void main(String[] args) {
         System.out.println("Michael Trinh's Root Locator");
+        // range in function 1: [0,4]
+        // range in function 2: [120,130]
         RootLocator rootLocator = new RootLocator();
         // Bisection
         System.out.println("\nBisection:");
-        rootLocator.doBisectionMethod(1, 0, 4, .01);
-        rootLocator.doBisectionMethod(2, 120, 130, .01);
+        rootLocator.doBisection(1, 0, 4, .01);
+        rootLocator.doBisection(2, 120, 130, .01);
         // Newton Raphson
         System.out.println("\nNewton-Raphson:");
-        // get random point in range (0,4) & (120,130)
-        double randomStartingPoint1 = 0 + (Math.random() * ((4 - 0)));
-        double randomStartingPoint2 = 120 + (Math.random() * ((130 - 120)));
-        System.out.println("random 1 = " + randomStartingPoint1);
-        System.out.println("random 2 = " + randomStartingPoint2);
-        rootLocator.doNewtonRaphson(1, randomStartingPoint1, .01);
-        rootLocator.doNewtonRaphson(2, randomStartingPoint2, .01);
+        rootLocator.doNewtonRaphson(1, 4, .01);
+        rootLocator.doNewtonRaphson(2, 125, .01);
         // Secant
-        System.out.println("\n Secant:");
+        System.out.println("\nSecant:");
+        rootLocator.doSecant(1, 3, 4, .01);
+        rootLocator.doSecant(2, 120, 130, .01);
     }
     
 }
