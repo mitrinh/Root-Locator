@@ -39,6 +39,14 @@ public class RootLocator {
         }
     }
     
+    boolean atMaximumIterations(int iterations){
+        if(iterations == 100) {
+            System.out.println("Root Not Found.");
+            return true;
+        }
+        return false;
+    }
+    
     // clever check if root converges to zero
     boolean isRoot(int function, double currentPoint){
         double funCurrent = getFunctionOfX(function, currentPoint);
@@ -56,10 +64,8 @@ public class RootLocator {
         for(int i = 0; !(approximateError < desiredError); i++) {
             previousPoint = currentPoint;
             currentPoint = (leftInterval + rightInterval) / 2;
-            if (i == 100) {
-                System.out.println("Root Not Found.");
+            if(atMaximumIterations(i)) 
                 return;
-            }
             // Ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
@@ -81,10 +87,8 @@ public class RootLocator {
             funCurrent = getFunctionOfX(function, currentPoint);
             derivePoint = getDerivativeFunctionOfX(function, currentPoint);
             currentPoint = previousPoint - (funCurrent / derivePoint);
-            if (i == 100) {
-                System.out.println("Root Not Found.");
+            if(atMaximumIterations(i)) 
                 return;
-            }
             // Ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
@@ -102,10 +106,8 @@ public class RootLocator {
             // xi+1 = xi - (f(xi) * (xi-xi-1)) / (f(xi) - f(xi-1))
             nextPoint = currentPoint - ((funCurrent * (currentPoint - 
                     previousPoint)) / (funCurrent - funPrevious));
-            if (i == 100) {
-                System.out.println("Root Not Found.");
+            if(atMaximumIterations(i)) 
                 return;
-            }
             // Ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((nextPoint - currentPoint) / nextPoint);
@@ -127,10 +129,8 @@ public class RootLocator {
             // c = b - ((f(b)*(b-a)) / (f(b) - f(a)))
             currentPoint = rightInterval - ((funRight * (rightInterval - leftInterval)) / 
                     (funRight - funLeft)); 
-            if (i == 100) {
-                System.out.println("Root Not Found.");
+            if(atMaximumIterations(i)) 
                 return;
-            }
             // Ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
@@ -145,6 +145,10 @@ public class RootLocator {
             System.out.println("Root is an inflection point.");
     }
     
+    public void doModifiedSecant(int function, double currentPoint, double delta) {
+        
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -152,6 +156,7 @@ public class RootLocator {
         System.out.println("Michael Trinh's Root Locator");
         // range in function 1: [0,4]
         // range in function 2: [120,130]
+        // desired error = 1%
         RootLocator rootLocator = new RootLocator();
         // Bisection
         System.out.println("\nBisection:");
