@@ -41,6 +41,16 @@ public class RootLocator {
         }
     }
     
+    // clever check if root converges to zero
+    boolean isRoot(int function, double currentPoint){
+        double funCurrent = getFunctionOfX(function, currentPoint);
+        if (funCurrent > -1 && funCurrent < 1) {
+            System.out.println("Root found at x = " + currentPoint);
+            return true;
+        } 
+        return false;
+    }
+    
     public void doBisection(int function, double leftInterval, 
             double rightInterval, double desiredError) {
         double currentPoint = (leftInterval + rightInterval) / 2;
@@ -62,13 +72,8 @@ public class RootLocator {
             else
                 rightInterval = currentPoint;
         }   
-        // clever check if root converges to zero
-        funCurrent = getFunctionOfX(function, currentPoint);
-        if (funCurrent > -1 && funCurrent < 1) {
-            System.out.println("Root found at x = " + currentPoint);
-            return;
-        }
-        System.out.println("Root is an inflection point.");
+        if(!isRoot(function, currentPoint))
+            System.out.println("Root is an inflection point.");
     }
     
     public void doNewtonRaphson(int function, double currentPoint, double desiredError) {
@@ -86,13 +91,8 @@ public class RootLocator {
             else if (i != 0)
                 approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
         }
-        // clever check if root converges to zero
-        funCurrent = getFunctionOfX(function, currentPoint);
-        if (funCurrent > -1 && funCurrent < 1) {
-            System.out.println("Root found at x = " + currentPoint);
-            return;
-        }
-        System.out.println("Inflection point found at x = " + currentPoint);
+        if(!isRoot(function, currentPoint))
+            System.out.println("Root is an inflection point.");
     }
     
     public void doSecant(int function, double previousPoint, double currentPoint, 
@@ -114,13 +114,8 @@ public class RootLocator {
             previousPoint = currentPoint;
             currentPoint = nextPoint;
         }
-        // clever check if root converges to zero
-        funCurrent = getFunctionOfX(function, currentPoint);
-        if (funCurrent > -1 && funCurrent < 1) {
-            System.out.println("Root found at x = " + currentPoint);
-            return;
-        }
-        System.out.println("Inflection point found at x = " + currentPoint);
+        if(!isRoot(function, currentPoint))
+            System.out.println("Root is an inflection point.");
     }
     
     /**
