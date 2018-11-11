@@ -145,8 +145,24 @@ public class RootLocator {
             System.out.println("Root is an inflection point.");
     }
     
-    public void doModifiedSecant(int function, double currentPoint, double delta) {
-        
+    public void doModifiedSecant(int function, double currentPoint, double delta, 
+            double desiredError) {
+        double funCurrent, funSum, nextPoint, approximateError = 1;
+        for(int i = 0; !(approximateError < desiredError); i++) {
+            funCurrent = getFunctionOfX(function, currentPoint);
+            funSum = getFunctionOfX(function, currentPoint + (delta * currentPoint));
+            // xi+1 = xi - f(xi) * ((delta * xi) / (f(xi + delta * xi) - f(xi)))
+            nextPoint = currentPoint - funCurrent * ((delta * currentPoint) / 
+                    (funSum - funCurrent));
+            if(atMaximumIterations(i)) 
+                return;
+            // Ea = (current - previous) / current
+            else if (i != 0)
+                approximateError = Math.abs((nextPoint - currentPoint) / nextPoint);
+            currentPoint = nextPoint;
+        }
+        if(!isRoot(function, currentPoint))
+            System.out.println("Root is an inflection point.");
     }
     
     /**
@@ -176,6 +192,8 @@ public class RootLocator {
         rootLocator.doFalsePosition(2, 120, 130, .01);
         // Modified Secant
         System.out.println("\nModified Secant:");
+        rootLocator.doModifiedSecant(1, 3, .01, .01);
+        rootLocator.doModifiedSecant(2, 125, .01, .01);
     }
     
 }
