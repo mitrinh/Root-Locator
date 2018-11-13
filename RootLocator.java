@@ -51,7 +51,7 @@ public class RootLocator {
     boolean isRoot(int function, double currentPoint){
         double funCurrent = getFunctionOfX(function, currentPoint);
         if (funCurrent > -.5 && funCurrent < .5) {
-            System.out.println("Root found at x = " + currentPoint + "\n");
+            System.out.println("Root found at x = " + currentPoint);
             return true;
         } 
         return false;
@@ -65,10 +65,11 @@ public class RootLocator {
             funLeft = getFunctionOfX(function, leftInterval);
             funRight = getFunctionOfX(function, rightInterval);
             previousPoint = currentPoint;
+            // cn = (an + bn) / 2
             currentPoint = (leftInterval + rightInterval) / 2;
             if(atMaximumIterations(i)) 
                 return;
-            // En = (current - previous) / current
+            // ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
             funCurrent = getFunctionOfX(function, currentPoint);
@@ -81,7 +82,7 @@ public class RootLocator {
                 rightInterval = currentPoint;
         }   
         if(!isRoot(function, currentPoint))
-            System.out.println("Root is an inflection point.");
+            System.out.println("Root not found. Point is an inflection point.");
     }
     
     private void printBracketingFunction(int i, double leftInterval, 
@@ -92,35 +93,38 @@ public class RootLocator {
                 ", f(bn): " + funRight + 
                 ", f(cn): " + funCurrent);
         if(i != 0)
-            System.out.print(", En: " + approximateError);
+            System.out.print(", ea: " + approximateError);
         System.out.println("");
     }
     
     public void doNewtonRaphson(int function, double currentPoint, double desiredError) {
         double funCurrent, deriveCurrent, approximateError = 1;
-        double nextPoint = 1;
+        double previousPoint = 1;
         for(int i = 0; !(approximateError < desiredError); i++) {
             funCurrent = getFunctionOfX(function, currentPoint);
             deriveCurrent = getDerivativeFunctionOfX(function, currentPoint);
-            nextPoint = currentPoint - (funCurrent / deriveCurrent);
             if(atMaximumIterations(i)) 
                 return;
-            // En = (current - previous) / current
+            // ea = (current - previous) / current
             else if (i != 0)
-                approximateError = Math.abs((nextPoint - currentPoint) / nextPoint);
+                approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
             printNewtonRaphson(i, currentPoint, funCurrent, deriveCurrent, approximateError);
-            currentPoint = nextPoint;
+            if (!(approximateError < desiredError)) {
+                previousPoint = currentPoint;
+                // xn+1 = xn - (f(xn) / f'(xn))
+                currentPoint = currentPoint - (funCurrent / deriveCurrent);
+            }
         }
-        if(!isRoot(function, nextPoint))
-            System.out.println("Root is an inflection point.");
+        if(!isRoot(function, currentPoint))
+            System.out.println("Root not found. Point is an inflection point.");
     }
     
     private void printNewtonRaphson(int i, double currentPoint, double funCurrent, 
             double deriveCurrent, double approximateError) {
         System.out.print("n: " + i + ", xn: " + currentPoint + ", f(xn): " + 
-                funCurrent + ", f'(xn)" + deriveCurrent);
+                funCurrent + ", f'(xn): " + deriveCurrent);
         if(i != 0)
-            System.out.print(", En: " + approximateError);
+            System.out.print(", ea: " + approximateError);
         System.out.println("");
     }
     
@@ -136,7 +140,7 @@ public class RootLocator {
             funNext = getFunctionOfX(function, nextPoint);
             if(atMaximumIterations(i)) 
                 return;
-            // En = (current - previous) / current
+            // ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((nextPoint - currentPoint) / nextPoint);
             printSecant(i, previousPoint, currentPoint, nextPoint, funPrevious, 
@@ -145,7 +149,7 @@ public class RootLocator {
             currentPoint = nextPoint;
         }
         if(!isRoot(function, currentPoint))
-            System.out.println("Root is an inflection point.");
+            System.out.println("Root not found. Point is an inflection point.");
     }
     
     private void printSecant(int i, double previousPoint, double currentPoint, 
@@ -155,7 +159,7 @@ public class RootLocator {
                 currentPoint + ", xi+1: " + nextPoint + ", f(xi-1): " + 
                 funPrevious + ", f(xi): " + funCurrent + ", f(xi+1): " + funNext);
         if(i != 0)
-            System.out.print(", En: " + approximateError);
+            System.out.print(", ea: " + approximateError);
         System.out.println("");
     }
     
@@ -172,7 +176,7 @@ public class RootLocator {
                     (funRight - funLeft)); 
             if(atMaximumIterations(i)) 
                 return;
-            // En = (current - previous) / current
+            // ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((currentPoint - previousPoint) / currentPoint);
             funCurrent = getFunctionOfX(function, currentPoint);
@@ -184,7 +188,7 @@ public class RootLocator {
                 rightInterval = currentPoint;
         }
         if(!isRoot(function, currentPoint)) 
-            System.out.println("Root is an inflection point.");
+            System.out.println("Root not found. Point is an inflection point.");
     }
     
     public void doModifiedSecant(int function, double currentPoint, double delta, 
@@ -199,7 +203,7 @@ public class RootLocator {
             funNext = getFunctionOfX(function, nextPoint);
             if(atMaximumIterations(i)) 
                 return;
-            // En = (current - previous) / current
+            // ea = (current - previous) / current
             else if (i != 0)
                 approximateError = Math.abs((nextPoint - currentPoint) / nextPoint);
             printModifiedSecant(i, currentPoint, nextPoint, funCurrent, funSum, 
@@ -207,7 +211,7 @@ public class RootLocator {
             currentPoint = nextPoint;
         }
         if(!isRoot(function, currentPoint))
-            System.out.println("Root is an inflection point.");
+            System.out.println("Root not found. Point is an inflection point.");
     }
     
     private void printModifiedSecant(int i, double currentPoint, double nextPoint, 
@@ -216,7 +220,7 @@ public class RootLocator {
                 nextPoint + ", f(xi): " + funCurrent + ", f(xi+delta*xi): " + 
                 funSum + ", f(xi+1): " + funNext);
         if(i != 0)
-            System.out.print(", En: " + approximateError);
+            System.out.print(", ea: " + approximateError);
         System.out.println("");
     }
     
@@ -229,25 +233,55 @@ public class RootLocator {
         // range in function 2: [120,130], 1 root
         // desired error = 1%
         RootLocator rootLocator = new RootLocator();
-        // Bisection
-        System.out.println("\nBisection:");
+
+        System.out.println("\n function 1: ");
+        
+        System.out.println("\n root #1: ");
+        System.out.println("\n Bisection:");
         rootLocator.doBisection(1, 0, 4, .01);
-        rootLocator.doBisection(2, 120, 130, .01);
-        // Newton-Raphson
-        System.out.println("\nNewton-Raphson:");
+        System.out.println("\n Newton-Raphson:");
         rootLocator.doNewtonRaphson(1, 3, .01);
-        rootLocator.doNewtonRaphson(2, 120, .01);
-        // Secant
-        System.out.println("\nSecant:");
+        System.out.println("\n Secant:");
         rootLocator.doSecant(1, 3, 4, .01);
-        rootLocator.doSecant(2, 120, 130, .01);
-        // False-Position
-        System.out.println("\nFalse-Position:");
+        System.out.println("\n False-Position:");
         rootLocator.doFalsePosition(1, 2, 4, .01);
-        rootLocator.doFalsePosition(2, 120, 130, .01);
-        // Modified Secant
-        System.out.println("\nModified Secant:");
+        System.out.println("\n Modified Secant:");
         rootLocator.doModifiedSecant(1, 3, .01, .01);
+        
+        System.out.println("\n root #2: ");
+        System.out.println("\n Bisection:");
+        rootLocator.doBisection(1, 1, 4, .01);
+        System.out.println("\n Newton-Raphson:");
+        rootLocator.doNewtonRaphson(1, 2, .01);
+        System.out.println("\n Secant:");
+        rootLocator.doSecant(1, 1, 2, .01);
+        System.out.println("\n False-Position:");
+        rootLocator.doFalsePosition(1, 1, 3, .01);
+        System.out.println("\n Modified Secant:");
+        rootLocator.doModifiedSecant(1, 2, .01, .01);
+        
+        System.out.println("\n root #3: ");
+        System.out.println("\n Bisection:");
+        rootLocator.doBisection(1, 0, 1, .01);
+        System.out.println("\n Newton-Raphson:");
+        rootLocator.doNewtonRaphson(1, .5, .01);
+        System.out.println("\n Secant:");
+        rootLocator.doSecant(1, 0, 1, .01);
+        System.out.println("\n False-Position:");
+        rootLocator.doFalsePosition(1, .5, 1.5, .01);
+        System.out.println("\n Modified Secant:");
+        rootLocator.doModifiedSecant(1, .5, .01, .01);
+        
+        System.out.println("\n function 2:");
+        System.out.println("\n Bisection:");
+        rootLocator.doBisection(2, 120, 130, .01);
+        System.out.println("\n Newton-Raphson:");
+        rootLocator.doNewtonRaphson(2, 120, .01);
+        System.out.println("\n Secant:");
+        rootLocator.doSecant(2, 120, 130, .01);
+        System.out.println("\n False-Position:");
+        rootLocator.doFalsePosition(2, 120, 130, .01);
+        System.out.println("\n Modified Secant:");
         rootLocator.doModifiedSecant(2, 120, .01, .01);
     }
     
